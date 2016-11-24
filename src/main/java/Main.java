@@ -22,13 +22,14 @@ public class Main {
 
     public static void main(String[] args) {
 
+        /*
         JSONObject test = new JSONObject(json_test);
         try {
             getCheckpoint(test);
         } catch (UnirestException e) {
             e.printStackTrace();
         }
-
+        */
         staticFileLocation("/public");
         port(7777);
         post("/checkpoint", Main::getCoord);
