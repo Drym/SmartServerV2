@@ -18,18 +18,18 @@ public class Main {
     public static String KEY = "AIzaSyCAyS6YwjjNKyUdiITmjhd1dKc0swsw9E0";
     public static String SNAP_ROAD_URL = "https://roads.googleapis.com/v1/snapToRoads";
 
-    public static String json_test = "{\"value\":[{\"lg\":\"7.07532013\",\"lt\":\"43.62025872\"}, {\"lg\":\"7.07532013\",\"lt\":\"43.62025872\"}, {\"lg\":\"7.07532013\",\"lt\":\"43.62025872\"}]}";
+    public static String json_test = "{\"value\":[{\"lt\":\"43.62025872\",\"lg\":\"7.07532013\"}]}";
 
     public static void main(String[] args) {
 
-        /*
         JSONObject test = new JSONObject(json_test);
+        System.out.println("Test JSON : "+json_test);
         try {
             getCheckpoint(test);
         } catch (UnirestException e) {
             e.printStackTrace();
         }
-        */
+
         staticFileLocation("/public");
         port(7777);
         post("/checkpoint", Main::getCoord);
@@ -46,7 +46,6 @@ public class Main {
             e.printStackTrace();
         }
 
-        System.out.println("Google API resulat : "+resultat.toString());
         String resultatFinal = parseJSON(resultat).toString();
 
         return resultatFinal;
@@ -69,7 +68,7 @@ public class Main {
         HttpResponse<JsonNode> request = Unirest.get(url).asJson();
         JSONObject myObj = request.getBody().getObject();
 
-        //System.out.println(myObj.toString());
+        System.out.println("Google API resulat : "+myObj.toString());
 
         return myObj;
     }
