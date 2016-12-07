@@ -21,7 +21,7 @@ public class Main {
     public static String json_test = "{\"value\":[{\"lt\":\"43.62025872\",\"lg\":\"7.07532013\"}]}";
 
     public static void main(String[] args) {
-
+/*
         JSONObject test = new JSONObject(json_test);
         System.out.println("Test JSON : "+json_test);
         try {
@@ -29,10 +29,20 @@ public class Main {
         } catch (UnirestException e) {
             e.printStackTrace();
         }
-
+*/
         staticFileLocation("/public");
         port(7777);
         post("/checkpoint", Main::getCoord);
+        post("/timing", Main::getTiming);
+    }
+
+    private static String getTiming(Request request, Response response) {
+
+        System.out.println("Received from SmartRoad app 2 : " + request.body());
+
+        JSONObject status = new JSONObject("{\"status\": \"OK\"}");
+
+        return String.valueOf(status);
     }
 
     private static String getCoord(Request request, Response response) {
@@ -49,7 +59,6 @@ public class Main {
         String resultatFinal = parseJSON(resultat).toString();
 
         return resultatFinal;
-        //return "coucou ca va encule";
     }
 
     private static JSONObject getCheckpoint(JSONObject locations) throws UnirestException {
@@ -72,7 +81,6 @@ public class Main {
 
         return myObj;
     }
-    // 7.07532013,43.62025872 43.62020459039435,7.074930474126736
 
     private static JSONObject parseJSON(JSONObject resultat) {
 
