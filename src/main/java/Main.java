@@ -5,7 +5,13 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import spark.*;
+import spark.Request;
+import spark.Response;
+
+import static spark.Spark.get;
+import static spark.Spark.post;
+import static spark.Spark.staticFileLocation;
+import static spark.SparkBase.setPort;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,7 +37,7 @@ public class Main {
         }
 
         staticFileLocation("/public");
-        port(7777);
+        setPort(7777);
         post("/checkpoint", Main::getCoord);
     }
 
@@ -101,5 +107,32 @@ public class Main {
         System.out.println("Parsing of Google API result : "+resultatFinal);
 
         return resultatFinal;
+    }
+
+
+    /*
+    JSONObject expected:
+    {
+        travel:{
+            id:1,
+            start:yyyy-MM-dd-HH:mm:ss,
+            time:2400
+        },
+        values:[
+            {
+                id:0,
+                lat:17,8,
+                long:42,
+                time:512,
+             },...
+        ]
+    }
+
+
+     */
+    private static String saveRecord(Request request, Response response){
+        JSONObject resultat = new JSONObject(request.body());
+
+        return "ok";
     }
 }
