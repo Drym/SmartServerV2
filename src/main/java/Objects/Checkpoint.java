@@ -20,6 +20,15 @@ public class Checkpoint {
         this.time = time;
     }
 
+    public Checkpoint(int id, float latitude, float longitude, int time) {
+
+        this.travel_id = -1;
+        this.id = id;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.time = time;
+    }
+
     public int getTravel_id() {
         return travel_id;
     }

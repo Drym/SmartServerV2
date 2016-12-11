@@ -1,5 +1,6 @@
 package database;
 
+import Objects.Checkpoint;
 import Objects.Travel;
 import Utils.MyMath;
 import org.sqlite.SQLiteConfig;
@@ -43,9 +44,10 @@ public class SQLDatabase {
                 " LAT       REAL    NOT NULL, " +
                 " LONG      REAL     NOT NULL, " +
                 " TIME      INT     NOT NULL," +
-                "FOREIGN KEY(TRAVEL) REFERENCES TRAVEL(ID)"
+                "FOREIGN KEY(TRAVEL) REFERENCES TRAVEL(ID))"
         ;
         stmt.executeUpdate(travel);
+        stmt.executeUpdate(checkpoint);
         stmt.close();
     }
 
@@ -59,12 +61,30 @@ public class SQLDatabase {
     [130-150] -> 2
     [150-infinie] -> 3
      */
-    public void addTravel(Travel travel,int mediane) throws SQLException {
+    public int addTravel(Travel travel,int mediane) throws SQLException {
+        int id = -1;
         Statement stmt = null;
         stmt = c.createStatement();
         c.setAutoCommit(false);
         String sql = "INSERT INTO TRAVEL (LABEL,START,DAY,TIME) " +
                 "VALUES ("+ MyMath.getLabel(travel.getTime(),mediane)+", "+ travel.getStart() + ", " +travel.getDay() + ", " + travel.getTime()+" );";
+        int res = stmt.executeUpdate(sql);
+        if(res > 0){
+            ResultSet rs = stmt.getGeneratedKeys();
+            id = rs.getInt(1);
+        }
+        stmt.close();
+        c.commit();
+        return id;
+    }
+
+    public void addCheckpoint(Checkpoint chekpoint,int mediane) throws SQLException {
+        Statement stmt = null;
+        stmt = c.createStatement();
+        c.setAutoCommit(false);
+        String sql = "INSERT INTO CHECKPOINT (ID,TRAVEL,LABEL,LAT,LONG,TIME) " +
+                "VALUES ("+chekpoint.getId() + ", "+ chekpoint.getTravel_id() +", " +MyMath.getLabel(chekpoint.getTime(),mediane) + ", "
+                + chekpoint.getLatitude() + ", " + chekpoint.getLongitude()+ ", " + chekpoint.getTime()+" );";
         stmt.executeUpdate(sql);
         stmt.close();
         c.commit();
@@ -91,10 +111,43 @@ public class SQLDatabase {
         stmt.close();
     }
 
+    public void displayCheckpoint() throws SQLException {
+        Statement stmt = c.createStatement();
+        ResultSet rs = stmt.executeQuery( "SELECT * FROM CHECKPOINT;" );
+        while ( rs.next() ) {
+            int id = rs.getInt("ID");
+            int cls = rs.getInt("LABEL");
+            int travel_id = rs.getInt("TRAVEL");
+            float lt  = rs.getInt("LAT");
+            float lg  = rs.getInt("LONG");
+            int time = rs.getInt("TIME");
+
+            System.out.println( "ID = " + id );
+            System.out.println( "LABEL = " + cls );
+            System.out.println( "TRAVEL = " + travel_id );
+            System.out.println( "lAT = " + lt);
+            System.out.println( "LONG = " + lg);
+            System.out.println( "TIME = " + time);
+            System.out.println();
+        }
+        rs.close();
+        stmt.close();
+    }
+
+    public void deleteAll() throws SQLException {
+        deleteCheckpoint();
+        deleteTravel();
+    }
     public void deleteTravel() throws SQLException {
         Statement stmt = c.createStatement();
-        stmt.executeUpdate( "DELETE FROM TRAVEL;" );
+        stmt.executeUpdate( "DROP TABLE IF EXISTS TRAVEL;" );
         stmt.close();
-
     }
+
+    public void deleteCheckpoint() throws SQLException {
+        Statement stmt = c.createStatement();
+        stmt.executeUpdate( "DROP TABLE IF EXISTS CHECKPOINT;" );
+        stmt.close();
+    }
+
 }
