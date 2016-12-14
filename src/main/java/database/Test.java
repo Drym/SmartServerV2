@@ -43,6 +43,10 @@ public class Test {
             database.displayTravel();
             System.out.println("displaying checkpoints");
             database.displayCheckpoint();
+            int median1 = database.getAverageTravel();
+            int median2 = database.getAverageCheckpoints(1);
+            System.out.println("average travel "+ median1 + "average checkpoint" + median2);
+
 
         } catch (SQLException e) {
             e.printStackTrace();

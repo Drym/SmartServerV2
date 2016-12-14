@@ -111,6 +111,29 @@ public class SQLDatabase {
         stmt.close();
     }
 
+    public void displayCheckpointbyId(int t_id) throws SQLException {
+        Statement stmt = c.createStatement();
+        ResultSet rs = stmt.executeQuery( "SELECT * FROM CHECKPOINT WHERE ID= "+ t_id + ";" );
+        while ( rs.next() ) {
+            int id = rs.getInt("ID");
+            int cls = rs.getInt("LABEL");
+            int travel_id = rs.getInt("TRAVEL");
+            float lt  = rs.getInt("LAT");
+            float lg  = rs.getInt("LONG");
+            int time = rs.getInt("TIME");
+
+            System.out.println( "ID = " + id );
+            System.out.println( "LABEL = " + cls );
+            System.out.println( "TRAVEL = " + travel_id );
+            System.out.println( "lAT = " + lt);
+            System.out.println( "LONG = " + lg);
+            System.out.println( "TIME = " + time);
+            System.out.println();
+        }
+        rs.close();
+        stmt.close();
+    }
+
     public void displayCheckpoint() throws SQLException {
         Statement stmt = c.createStatement();
         ResultSet rs = stmt.executeQuery( "SELECT * FROM CHECKPOINT;" );
@@ -132,6 +155,37 @@ public class SQLDatabase {
         }
         rs.close();
         stmt.close();
+    }
+
+    /*
+        return the mediane of all the travels
+     */
+    public int getAverageTravel() throws SQLException {
+        int result = -1;
+        Statement stmt = c.createStatement();
+        ResultSet rs = stmt.executeQuery( "SELECT AVG(x) FROM (SELECT TIME AS x FROM TRAVEL " +
+                        "ORDER BY TIME LIMIT 2 - (SELECT COUNT(*) FROM TRAVEL) % 2 " + //if we got a even number
+                        "OFFSET (SELECT (COUNT(*) - 1) / 2 FROM TRAVEL));");
+        while ( rs.next() ) {
+            result = rs.getInt(1);
+        }
+        return result;
+    }
+
+    /*
+        return the mediane of all the checkpoints
+     */
+    public int getAverageCheckpoints(int id) throws SQLException {
+        int result = -1;
+        Statement stmt = c.createStatement();
+        ResultSet rs = stmt.executeQuery( "SELECT AVG(x) FROM (SELECT TIME AS x FROM CHECKPOINT " +
+                "WHERE ID = "+ id +
+                " ORDER BY TIME LIMIT 2 - (SELECT COUNT(*) FROM CHECKPOINT) % 2 " + //if we got a even number
+                "OFFSET (SELECT (COUNT(*) - 1) / 2 FROM CHECKPOINT));");
+        while ( rs.next() ) {
+            result = rs.getInt(1);
+        }
+        return result;
     }
 
     public void deleteAll() throws SQLException {

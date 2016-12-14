@@ -12,6 +12,19 @@ public class Travel {
     private Date date;
     private int time;
 
+
+    public Travel() {
+        this.id = -1;
+        this.date = new Date();
+        this.time = -1;
+    }
+
+    public Travel(Date date, int time) {
+        this.id = -1;
+        this.date = date;
+        this.time = time;
+    }
+
     public Travel(int id, Date date, int time) {
         this.id = id;
         this.date = date;

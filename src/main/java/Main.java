@@ -1,8 +1,11 @@
 //code for the server using Java Spark library for web application
+import Objects.Checkpoint;
+import Objects.Travel;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import database.SQLDatabase;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import spark.Request;
@@ -13,8 +16,12 @@ import static spark.Spark.post;
 import static spark.Spark.staticFileLocation;
 import static spark.SparkBase.setPort;
 
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 
 import static spark.Spark.*;
@@ -23,10 +30,19 @@ public class Main {
 
     public static String KEY = "AIzaSyCAyS6YwjjNKyUdiITmjhd1dKc0swsw9E0";
     public static String SNAP_ROAD_URL = "https://roads.googleapis.com/v1/snapToRoads";
-
     public static String json_test = "{\"value\":[{\"lt\":\"43.62025872\",\"lg\":\"7.07532013\"}]}";
 
+    public static SQLDatabase database;
+
     public static void main(String[] args) {
+
+        try {
+            SQLDatabase database = new SQLDatabase("database/test.db");
+            database.deleteAll();
+            database.create_database();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         JSONObject test = new JSONObject(json_test);
         System.out.println("Test JSON : "+json_test);
@@ -114,7 +130,6 @@ public class Main {
     JSONObject expected:
     {
         travel:{
-            id:1,
             start:yyyy-MM-dd-HH:mm:ss,
             time:2400
         },
@@ -129,9 +144,45 @@ public class Main {
     }
 
 
+    */
+
+    /*
+        Store the result of a travel in to the database
      */
     private static String saveRecord(Request request, Response response){
         JSONObject resultat = new JSONObject(request.body());
+        JSONObject t = resultat.getJSONObject("travel");
+        JSONArray values = resultat.getJSONArray("values");
+        SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+        Travel travel = new Travel();
+        int travel_id;
+        ArrayList<Checkpoint> checkpoints = new ArrayList<Checkpoint>();
+        try {
+            Date date = dateformat.parse(t.getString("start"));
+            travel = new Travel(date,t.getInt("time"));
+            JSONObject checkpoint;
+            for(int i=0;i<values.length();i++){
+                checkpoint = values.getJSONObject(i);
+                checkpoints.add(new Checkpoint(checkpoint.getInt("id"),(float)checkpoint.getDouble("lat"),(float)checkpoint.getDouble("long"),checkpoint.getInt("time")));
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        try {
+            int average_travel = database.getAverageTravel();
+            int mediane;
+            //we get the id once the travel have been added to datatabase
+            travel_id = database.addTravel(travel,average_travel);
+            for(Checkpoint i:checkpoints){
+                i.setTravel_id(travel_id);
+                mediane = database.getAverageCheckpoints(i.getId());
+                database.addCheckpoint(i,mediane);
+            }
+            System.out.println("adding checkpoints\n");
+            database.displayCheckpointbyId(travel_id);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
         return "ok";
     }
