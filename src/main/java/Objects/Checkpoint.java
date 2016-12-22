@@ -29,6 +29,15 @@ public class Checkpoint {
         this.time = time;
     }
 
+    /*
+        ID = 1
+        LABEL = 0
+        TRAVEL = 1
+        lAT = 15.0
+        LONG = 42.0
+        TIME = 129
+     */
+
     public int getTravel_id() {
         return travel_id;
     }

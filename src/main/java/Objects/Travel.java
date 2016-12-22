@@ -72,4 +72,8 @@ public class Travel {
         cal.setTime(date);
         return cal.get(Calendar.HOUR_OF_DAY) * 3600 +  cal.get(Calendar.MINUTE) * 60 + cal.get(Calendar.SECOND);
     }
+
+    public static int getStartHour(int seconds){
+        return seconds/3600;
+    }
 }

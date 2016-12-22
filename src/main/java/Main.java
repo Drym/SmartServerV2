@@ -19,10 +19,7 @@ import static spark.SparkBase.setPort;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
+import java.util.*;
 
 import static spark.Spark.*;
 
@@ -55,6 +52,7 @@ public class Main {
         staticFileLocation("/public");
         setPort(7777);
         post("/checkpoint", Main::getCoord);
+        post("/record", Main::saveRecord);
     }
 
     private static String getCoord(Request request, Response response) {
@@ -169,21 +167,60 @@ public class Main {
             e.printStackTrace();
         }
         try {
-            int average_travel = database.getAverageTravel();
-            int mediane;
             //we get the id once the travel have been added to datatabase
-            travel_id = database.addTravel(travel,average_travel);
+            travel_id = database.addTravel(travel);
             for(Checkpoint i:checkpoints){
                 i.setTravel_id(travel_id);
-                mediane = database.getAverageCheckpoints(i.getId());
-                database.addCheckpoint(i,mediane);
+                database.addCheckpoint(i);
             }
             System.out.println("adding checkpoints\n");
             database.displayCheckpointbyId(travel_id);
+            //construit le training file
+            database.writeRecords();
+            database.train();
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
         return "ok";
+    }
+
+
+    /*
+        returning stats for the application, average travel, moyenne par jour ...
+        example:
+        {
+            average_travel: 450,
+            travels:[
+                {
+                    day:1,
+                    average: 430,
+                    best_hour: 15h30
+                },
+                {
+                    day:2,
+                    average: 470,
+                    best_hour: 16h15
+                }
+                ...
+            ]
+            checkpoints: [
+                {
+                    id:1,
+                    average: 120
+                },
+                {
+                    id:2,
+                    average: 180
+                }
+                ...
+            ]
+
+
+        }
+     */
+    private static String getStats(Request request, Response response){
+        String res = "";
+        return res;
     }
 }

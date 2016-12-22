@@ -1,5 +1,8 @@
 package Utils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 /**
  * Created by thibault on 09/12/2016.
  */
@@ -7,6 +10,16 @@ public class MyMath {
 
     public static boolean isBetween(float x, float lower, float upper) {
         return lower <= x && x < upper;
+    }
+    public static ArrayList<String> days = new ArrayList<String>();
+    static {
+        days.add("Sunday");
+        days.add("Monday");
+        days.add("Tuesday");
+        days.add("Wednesday");
+        days.add("Thursday");
+        days.add("Friday");
+        days.add("Saturday");
     }
 
     public static int getLabel(int time,int mediane){
@@ -31,4 +44,5 @@ public class MyMath {
         }
         else return -3;
     }
+
 }
