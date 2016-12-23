@@ -1,6 +1,10 @@
 //code for the server using Java Spark library for web application
 import Objects.Checkpoint;
 import Objects.Travel;
+import Objects.CheckpointRecord;
+import Objects.TravelRecord;
+import Utils.MyMath;
+import Utils.SvmManager;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
@@ -16,6 +20,7 @@ import static spark.Spark.post;
 import static spark.Spark.staticFileLocation;
 import static spark.SparkBase.setPort;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -53,6 +58,7 @@ public class Main {
         setPort(7777);
         post("/checkpoint", Main::getCoord);
         post("/record", Main::saveRecord);
+        post("/prediction", Main::predict);
     }
 
     private static String getCoord(Request request, Response response) {
@@ -185,6 +191,56 @@ public class Main {
         return "ok";
     }
 
+    /*
+        make a prediction according the post parameter
+        travel:{
+            start:yyyy-MM-dd-HH:mm:ss,
+        },
+        values:[
+            {
+                id:0,
+                lat:17,8,
+                long:42,
+                time:512,
+             },...
+        ]
+
+     */
+    private static String predict(Request request, Response response){
+        JSONObject resultat = new JSONObject(request.body());
+        JSONObject t = resultat.getJSONObject("travel");
+        JSONArray values = resultat.getJSONArray("values");
+        SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+        TravelRecord travel;
+        int result = -1;
+        ArrayList<CheckpointRecord> checkpoints = new ArrayList<CheckpointRecord>();
+        try {
+            Date date = dateformat.parse(t.getString("start"));
+            JSONObject checkpoint;
+            int id;
+            for(int i=0;i<values.length();i++){
+                checkpoint = values.getJSONObject(i);
+                id = checkpoint.getInt("id");
+                checkpoints.add(new CheckpointRecord(new Checkpoint(id,(float)checkpoint.getDouble("lat"),(float)checkpoint.getDouble("long"),checkpoint.getInt("time"))
+                        , database.getAverage(id)));
+            }
+            travel = new TravelRecord(MyMath.getStart(date),MyMath.getDay(date),checkpoints);
+            result = SvmManager.predict(travel);
+            result = MyMath.getTimesFromLabel(result,database.getAverageTravel());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if(result>=0){
+            return String.valueOf(result);
+        }
+        else{
+            return "oups un erreur s'est produite sorry";
+        }
+    }
 
     /*
         returning stats for the application, average travel, moyenne par jour ...

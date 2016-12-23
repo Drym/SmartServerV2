@@ -19,10 +19,12 @@ public class SQLDatabase {
 
     Connection c = null;
     SvmManager svm;
+    ArrayList<Integer> averageCheckpoints;
 
     public SQLDatabase(String path) {
         c = null;
         svm = new SvmManager();
+        averageCheckpoints = new ArrayList<>();
         try {
             Class.forName("org.sqlite.JDBC");
             SQLiteConfig config = new SQLiteConfig();
@@ -194,13 +196,14 @@ public class SQLDatabase {
                 checkpointRecords.add(new CheckpointRecord(k, average_checkpoint.get(k.getId())));
             }
             average = getAverageTravel();
-            System.out.println(id + " size check" + checkpoints.size() + " average " + average);
+            //System.out.println(id + " size check" + checkpoints.size() + " average " + average);
             TravelRecord records = new TravelRecord(Travel.getStartHour(rs.getInt("START")),rs.getInt("DAY"),checkpointRecords,MyMath.getLabel(rs.getInt("TIME"),average));
             svm.write(records);
         }
         rs.close();
         stmt.close();
         svm.close();
+        uppdateAverage();
     }
 
     public void train(){
@@ -312,6 +315,25 @@ public class SQLDatabase {
         rs.close();
         stmt.close();
         return res;
+    }
+
+    public void uppdateAverage(){
+        int nb = 0;
+        try {
+            nb = getNumberOfCheckpoints();
+            for(int i = 0; i<nb; i++) {
+                averageCheckpoints.add(i,getAverageCheckpoints(i));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public int getAverage(int id){
+        if(id < averageCheckpoints.size()) {
+            return averageCheckpoints.get(id);
+        }
+        return -1;
     }
 
     public void deleteAll() throws SQLException {

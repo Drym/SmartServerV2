@@ -36,7 +36,6 @@ public class Test {
 
 
             database.deleteAll();
-
             database.create_database();
             id1 = database.addTravel(t1);
             id2 = database.addTravel(t2);
@@ -63,6 +62,7 @@ public class Test {
             System.out.println("number of checkpoints " + database.getNumberOfCheckpoints());
             System.out.println("write records:");
             database.writeRecords();
+            System.out.println("average test " + database.getAverage(0));
             database.train();
 
 

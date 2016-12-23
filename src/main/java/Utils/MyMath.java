@@ -1,6 +1,8 @@
 package Utils;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -20,6 +22,51 @@ public class MyMath {
         days.add("Thursday");
         days.add("Friday");
         days.add("Saturday");
+    }
+
+    public static int getDay(Date date){
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return cal.get(Calendar.DAY_OF_WEEK);
+    }
+
+    public static int getStart(Date date){
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return cal.get(Calendar.HOUR_OF_DAY);
+    }
+
+    /*
+        return the time predicted for a travel, label is the evaluation we get from SVM
+     */
+    public static int getTimesFromLabel(int label,int average){
+        float time;
+        if(average < 0){
+            return -1;
+        }
+        switch (label){
+            case 0:
+                time = average;
+                break;
+            case 1:
+                time = (float)(average * 1.2);
+                break;
+            case 2:
+                time = (float)(average * 1.4);
+                break;
+            case -1:
+                time = (float)(average * 0.8);
+                break;
+            case -2:
+                time = (float)(average * 0.6);
+                break;
+            case -3:
+                time = (float)(average * 0.4);
+                break;
+            default:
+                time = (float)(average * 1.6);
+        }
+        return (int)time;
     }
 
     public static int getLabel(int time,int mediane){
