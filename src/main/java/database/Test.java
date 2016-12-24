@@ -68,8 +68,8 @@ public class Test {
 
             //prediction
             ArrayList<CheckpointRecord> records = new ArrayList<>();
-            records.add(new CheckpointRecord(new Checkpoint(0,(float)15.7,(float)47.8,140),175));
-            records.add(new CheckpointRecord(new Checkpoint(1,(float)15.7,(float)47.8,160),189));
+            records.add(new CheckpointRecord(new Checkpoint(0,(float)15.7,(float)47.8,140),database.getAverage(0)));
+            records.add(new CheckpointRecord(new Checkpoint(1,(float)15.7,(float)47.8,160),database.getAverage(1)));
             int prediction = SvmManager.predict(new TravelRecord(16,3,records));
             System.out.println("prediction " + prediction);
 

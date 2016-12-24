@@ -39,7 +39,7 @@ public class Main {
     public static void main(String[] args) {
 
         try {
-            SQLDatabase database = new SQLDatabase("database/test.db");
+            database = new SQLDatabase("database/test.db");
             database.deleteAll();
             database.create_database();
         } catch (SQLException e) {
@@ -58,7 +58,7 @@ public class Main {
         setPort(7777);
         post("/checkpoint", Main::getCoord);
         post("/record", Main::saveRecord);
-        post("/prediction", Main::predict);
+        post("/predict", Main::predict);
     }
 
     private static String getCoord(Request request, Response response) {
@@ -140,8 +140,8 @@ public class Main {
         values:[
             {
                 id:0,
-                lat:17,8,
-                long:42,
+                lt:17,8,
+                lg:42,
                 time:512,
              },...
         ]
@@ -154,10 +154,12 @@ public class Main {
         Store the result of a travel in to the database
      */
     private static String saveRecord(Request request, Response response){
+        System.out.println("record");
+        System.out.println(request.body());
         JSONObject resultat = new JSONObject(request.body());
         JSONObject t = resultat.getJSONObject("travel");
         JSONArray values = resultat.getJSONArray("values");
-        SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+        SimpleDateFormat dateformat = new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss");
         Travel travel = new Travel();
         int travel_id;
         ArrayList<Checkpoint> checkpoints = new ArrayList<Checkpoint>();
@@ -167,7 +169,7 @@ public class Main {
             JSONObject checkpoint;
             for(int i=0;i<values.length();i++){
                 checkpoint = values.getJSONObject(i);
-                checkpoints.add(new Checkpoint(checkpoint.getInt("id"),(float)checkpoint.getDouble("lat"),(float)checkpoint.getDouble("long"),checkpoint.getInt("time")));
+                checkpoints.add(new Checkpoint(checkpoint.getInt("id"),(float)checkpoint.getDouble("lg"),(float)checkpoint.getDouble("lt"),checkpoint.getInt("time")));
             }
         } catch (ParseException e) {
             e.printStackTrace();
@@ -199,18 +201,20 @@ public class Main {
         values:[
             {
                 id:0,
-                lat:17,8,
-                long:42,
+                lt:17,8,
+                lg:42,
                 time:512,
              },...
         ]
 
      */
     private static String predict(Request request, Response response){
+        System.out.println("predict");
+        System.out.println(request.body());
         JSONObject resultat = new JSONObject(request.body());
         JSONObject t = resultat.getJSONObject("travel");
         JSONArray values = resultat.getJSONArray("values");
-        SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+        SimpleDateFormat dateformat = new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss");
         TravelRecord travel;
         int result = -1;
         ArrayList<CheckpointRecord> checkpoints = new ArrayList<CheckpointRecord>();
@@ -221,7 +225,7 @@ public class Main {
             for(int i=0;i<values.length();i++){
                 checkpoint = values.getJSONObject(i);
                 id = checkpoint.getInt("id");
-                checkpoints.add(new CheckpointRecord(new Checkpoint(id,(float)checkpoint.getDouble("lat"),(float)checkpoint.getDouble("long"),checkpoint.getInt("time"))
+                checkpoints.add(new CheckpointRecord(new Checkpoint(id,(float)checkpoint.getDouble("lt"),(float)checkpoint.getDouble("lg"),checkpoint.getInt("time"))
                         , database.getAverage(id)));
             }
             travel = new TravelRecord(MyMath.getStart(date),MyMath.getDay(date),checkpoints);
