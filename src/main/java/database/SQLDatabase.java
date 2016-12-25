@@ -202,7 +202,7 @@ public class SQLDatabase {
         }
         rs.close();
         stmt.close();
-        svm.close();
+        //svm.close();
         uppdateAverage();
     }
 
@@ -210,6 +210,10 @@ public class SQLDatabase {
         svm.train();
     }
 
+
+    public void close(){
+        svm.close();
+    }
     /*
         return the mediane of all the travels
      */

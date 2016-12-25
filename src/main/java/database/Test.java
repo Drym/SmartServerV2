@@ -64,6 +64,7 @@ public class Test {
             database.writeRecords();
             System.out.println("average test " + database.getAverage(0));
             database.train();
+            database.close();
 
 
             //prediction

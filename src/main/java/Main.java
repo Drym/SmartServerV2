@@ -194,6 +194,45 @@ public class Main {
     }
 
     /*
+        methode a utiliser pour remplir la bd
+     */
+    private void save(String body){
+        JSONObject resultat = new JSONObject(body);
+        JSONObject t = resultat.getJSONObject("travel");
+        JSONArray values = resultat.getJSONArray("values");
+        SimpleDateFormat dateformat = new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss");
+        Travel travel = new Travel();
+        int travel_id;
+        ArrayList<Checkpoint> checkpoints = new ArrayList<Checkpoint>();
+        try {
+            Date date = dateformat.parse(t.getString("start"));
+            travel = new Travel(date,t.getInt("time"));
+            JSONObject checkpoint;
+            for(int i=0;i<values.length();i++){
+                checkpoint = values.getJSONObject(i);
+                checkpoints.add(new Checkpoint(checkpoint.getInt("id"),(float)checkpoint.getDouble("lg"),(float)checkpoint.getDouble("lt"),checkpoint.getInt("time")));
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        try {
+            //we get the id once the travel have been added to datatabase
+            travel_id = database.addTravel(travel);
+            for(Checkpoint i:checkpoints){
+                i.setTravel_id(travel_id);
+                database.addCheckpoint(i);
+            }
+            System.out.println("adding checkpoints\n");
+            database.displayCheckpointbyId(travel_id);
+            //construit le training file
+            database.writeRecords();
+            database.train();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /*
         make a prediction according the post parameter
         travel:{
             start:yyyy-MM-dd-HH:mm:ss,
