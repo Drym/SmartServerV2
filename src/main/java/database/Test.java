@@ -22,7 +22,7 @@ public class Test {
     public static void main(String[] args) {
 
 
-        SQLDatabase database = new SQLDatabase("database/test.db");
+        SQLDatabase database = new SQLDatabase("src/main/java/database/test.db"); //database/test.db
         Date date = new Date();
         SimpleDateFormat dateformat = new SimpleDateFormat("dd/MM/yyyy/HH/mm/ss");
         try {

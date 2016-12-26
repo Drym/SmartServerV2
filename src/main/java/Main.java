@@ -9,6 +9,7 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.sun.org.apache.xpath.internal.SourceTree;
 import database.SQLDatabase;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -18,7 +19,6 @@ import spark.Response;
 import static spark.Spark.get;
 import static spark.Spark.post;
 import static spark.Spark.staticFileLocation;
-import static spark.SparkBase.setPort;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -39,7 +39,7 @@ public class Main {
     public static void main(String[] args) {
 
         try {
-            database = new SQLDatabase("database/test.db");
+            database = new SQLDatabase("src/main/java/database/test.db"); //database/test.db
             database.deleteAll();
             database.create_database();
         } catch (SQLException e) {
@@ -59,6 +59,7 @@ public class Main {
         post("/checkpoint", Main::getCoord);
         post("/record", Main::saveRecord);
         post("/predict", Main::predict);
+        post("/stats", Main::getStats);
     }
 
     private static String getCoord(Request request, Response response) {
@@ -75,7 +76,6 @@ public class Main {
         String resultatFinal = parseJSON(resultat).toString();
 
         return resultatFinal;
-        //return "coucou ca va encule";
     }
 
     private static JSONObject getCheckpoint(JSONObject locations) throws UnirestException {
@@ -98,7 +98,6 @@ public class Main {
 
         return myObj;
     }
-    // 7.07532013,43.62025872 43.62020459039435,7.074930474126736
 
     private static JSONObject parseJSON(JSONObject resultat) {
 
@@ -318,8 +317,47 @@ public class Main {
 
         }
      */
-    private static String getStats(Request request, Response response){
-        String res = "";
-        return res;
+    private static String getStats(Request request, Response response)  {
+
+        MyMath myMath = new MyMath();
+
+        JSONObject stats = new JSONObject();
+        JSONArray meanByDayArray = new JSONArray();
+        JSONArray minByDayArray = new JSONArray();
+
+        // 8 - 1 = 7 days.
+        for(int i = 1; i <= myMath.days.size(); i++) {
+            JSONObject meanByDay = new JSONObject();
+            try {
+                meanByDay.put("Day", myMath.days.get(i-1));
+                meanByDay.put("Value", database.getMeanTravelbyDay(i));
+            } catch (SQLException e) {
+                meanByDay.put("Day", myMath.days.get(i-1));
+                meanByDay.put("Value", "error");
+            }
+            meanByDayArray.put(meanByDay);
+
+            JSONObject minByDay = new JSONObject();
+            try {
+                minByDay.put("Day", myMath.days.get(i-1));
+                minByDay.put("Value", database.minTravelbyDay(i));
+            } catch(Exception e) {
+                minByDay.put("Day", myMath.days.get(i-1));
+                minByDay.put("Value", "error");
+            }
+            minByDayArray.put(minByDay);
+        }
+
+        try {
+            stats.put("mean", database.getMeanTravel());
+        } catch (SQLException e) {
+            stats.put("mean", "error");
+        }
+        stats.put("meanByDayArray", meanByDayArray);
+        stats.put("minByDayArray", minByDayArray);
+
+        System.out.println(stats);
+
+        return String.valueOf(stats);
     }
 }

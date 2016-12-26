@@ -59,7 +59,7 @@ public class SQLDatabase {
     }
 
     /*
-    Ajoute le trajet dans la table, la classe est calculée par rapport à la médiane, time/mediane en pourcentage
+    Ajoute le trajet dans la table, la classe est calculï¿½e par rapport ï¿½ la mï¿½diane, time/mediane en pourcentage
     [0-50] -> -3
     [50-70] -> -2
     [70-90] -> -1
