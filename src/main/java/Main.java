@@ -325,7 +325,6 @@ public class Main {
         JSONArray meanByDayArray = new JSONArray();
         JSONArray minByDayArray = new JSONArray();
 
-        // 8 - 1 = 7 days.
         for(int i = 1; i <= myMath.days.size(); i++) {
             JSONObject meanByDay = new JSONObject();
             try {
