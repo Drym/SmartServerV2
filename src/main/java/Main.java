@@ -4,6 +4,7 @@ import Objects.Travel;
 import Objects.CheckpointRecord;
 import Objects.TravelRecord;
 import Utils.MyMath;
+import Utils.Reader;
 import Utils.SvmManager;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
@@ -60,6 +61,8 @@ public class Main {
         post("/record", Main::saveRecord);
         post("/predict", Main::predict);
         post("/stats", Main::getStats);
+
+        fillBD();
     }
 
     private static String getCoord(Request request, Response response) {
@@ -195,40 +198,54 @@ public class Main {
     /*
         methode a utiliser pour remplir la bd
      */
-    private void save(String body){
-        JSONObject resultat = new JSONObject(body);
-        JSONObject t = resultat.getJSONObject("travel");
-        JSONArray values = resultat.getJSONArray("values");
-        SimpleDateFormat dateformat = new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss");
-        Travel travel = new Travel();
-        int travel_id;
-        ArrayList<Checkpoint> checkpoints = new ArrayList<Checkpoint>();
-        try {
-            Date date = dateformat.parse(t.getString("start"));
-            travel = new Travel(date,t.getInt("time"));
-            JSONObject checkpoint;
-            for(int i=0;i<values.length();i++){
-                checkpoint = values.getJSONObject(i);
-                checkpoints.add(new Checkpoint(checkpoint.getInt("id"),(float)checkpoint.getDouble("lg"),(float)checkpoint.getDouble("lt"),checkpoint.getInt("time")));
+    private static void fillBD(){
+
+        System.out.println("FIlling BD...");
+        Reader reader = new Reader();
+
+        JSONObject obj = reader.readFileJSON("test_road.json", "src/ressources");
+        JSONArray array = obj.getJSONArray("travels");
+
+        for(int y = 0; y < array.length(); y++) {
+
+            JSONObject resultat = array.getJSONObject(y);
+            JSONObject t =  resultat.getJSONObject("travel");
+            JSONArray values = resultat.getJSONArray("values");
+            SimpleDateFormat dateformat = new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss");
+            Travel travel = new Travel();
+            int travel_id;
+            ArrayList<Checkpoint> checkpoints = new ArrayList<Checkpoint>();
+            try {
+                Date date = dateformat.parse(t.getString("start"));
+                travel = new Travel(date,t.getInt("time"));
+                JSONObject checkpoint;
+                for(int i=0;i<values.length();i++){
+                    checkpoint = values.getJSONObject(i);
+                    checkpoints.add(new Checkpoint(checkpoint.getInt("id"),(float)checkpoint.getDouble("lg"),(float)checkpoint.getDouble("lt"),checkpoint.getInt("time")));
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
             }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        try {
-            //we get the id once the travel have been added to datatabase
-            travel_id = database.addTravel(travel);
-            for(Checkpoint i:checkpoints){
-                i.setTravel_id(travel_id);
-                database.addCheckpoint(i);
+            try {
+                //we get the id once the travel have been added to datatabase
+                travel_id = database.addTravel(travel);
+                for(Checkpoint i:checkpoints){
+                    i.setTravel_id(travel_id);
+                    database.addCheckpoint(i);
+                }
+                System.out.println("adding checkpoints\n");
+                database.displayCheckpointbyId(travel_id);
+                //construit le training file
+                database.writeRecords();
+                database.train();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-            System.out.println("adding checkpoints\n");
-            database.displayCheckpointbyId(travel_id);
-            //construit le training file
-            database.writeRecords();
-            database.train();
-        } catch (SQLException e) {
-            e.printStackTrace();
+
+            System.out.println("FIlling BD... "+y);
         }
+
+        System.out.println("FIlling BD... End");
     }
 
     /*
@@ -359,4 +376,6 @@ public class Main {
 
         return String.valueOf(stats);
     }
+
+
 }
