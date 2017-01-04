@@ -37,7 +37,7 @@ public class Main {
 
     public static String KEY = "AIzaSyCAyS6YwjjNKyUdiITmjhd1dKc0swsw9E0";
     public static String SNAP_ROAD_URL = "https://roads.googleapis.com/v1/snapToRoads";
-    public static String json_test = "{\"value\":[{\"lt\":\"43.62025872\",\"lg\":\"7.07532013\"},{\"lt\":\"43.62025872\",\"lg\":\"7.07532013\"}]}";
+    public static String json_test = "{\"value\":[{\"lt\":\"43.62025872\",\"lg\":\"7.07532013\"}, {\"lt\":\"43.62025872\",\"lg\":\"7.07532013\"}]}";
 
     public static SQLDatabase database;
 
@@ -96,14 +96,7 @@ public class Main {
                     path += "%7C";
             }
         }
-        URIBuilder builder = new URIBuilder();
-        builder.setScheme("https")
-                .setHost("roads.googleapis.com")
-                .setPath("/v1/snapToRoads")
-                .addParameter("path",path)
-                .addParameter("key",KEY);
         String url = SNAP_ROAD_URL + path +"&key=" + KEY;
-        System.out.println(url);
         //System.out.println(url);
         HttpResponse<JsonNode> request = Unirest.get(url).asJson();
         JSONObject myObj = request.getBody().getObject();
