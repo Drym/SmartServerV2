@@ -188,6 +188,9 @@ public class SQLDatabase {
             average_checkpoint.add(getAverageCheckpoints(i));
         }
         int id;
+        //delete the content of the training file, update the value, open the stream
+        svm.clear();
+        svm.open();
         while ( rs.next() ) {
             id = rs.getInt("ID");
             checkpoints = getCheckpointsbyTravel(id);
@@ -202,6 +205,7 @@ public class SQLDatabase {
         }
         rs.close();
         stmt.close();
+        svm.close();
         //svm.close();
         uppdateAverage();
     }
@@ -309,12 +313,12 @@ public class SQLDatabase {
         return result + 1;
     }
 
-    public String minTravelbyDay(int day) throws SQLException {
-        String res = "";
+    public int minTravelbyDay(int day) throws SQLException {
+        int res = -1;
         Statement stmt = c.createStatement();
-        ResultSet rs = stmt.executeQuery( "SELECT MIN(TIME) FROM TRAVEL WHERE DAY =" + day + ";");
+        ResultSet rs = stmt.executeQuery( "SELECT MIN(TIME),START FROM TRAVEL WHERE DAY =" + day + ";");
         while ( rs.next() ) {
-            res += rs.getInt(1) + " " + MyMath.days.get(rs.getInt(2));
+            res = rs.getInt(1);
         }
         rs.close();
         stmt.close();

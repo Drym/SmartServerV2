@@ -29,8 +29,17 @@ public class SvmManager {
     write record to file
         1 1:0.583333 2:-1 3:0.333333 4:-0.603774 ...
      */
+
+    public void open(){
+        try {
+            output = new BufferedWriter(new FileWriter(training_path, true));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void write(TravelRecord records){
-        System.out.println(records);
+        System.out.println("writing records " + records);
         try {
             output.write(records+"\n");
         } catch (IOException e) {
@@ -39,6 +48,11 @@ public class SvmManager {
     }
 
     public void train(){
+        try {
+            output.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         svm_parameter param = new svm_parameter();
         svm_train t = new svm_train();
         String argv[] = {training_path,model_path};

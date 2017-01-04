@@ -12,6 +12,7 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.sun.org.apache.xpath.internal.SourceTree;
 import database.SQLDatabase;
+import org.apache.http.client.utils.URIBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import spark.Request;
@@ -22,6 +23,9 @@ import static spark.Spark.post;
 import static spark.Spark.staticFileLocation;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -33,7 +37,7 @@ public class Main {
 
     public static String KEY = "AIzaSyCAyS6YwjjNKyUdiITmjhd1dKc0swsw9E0";
     public static String SNAP_ROAD_URL = "https://roads.googleapis.com/v1/snapToRoads";
-    public static String json_test = "{\"value\":[{\"lt\":\"43.62025872\",\"lg\":\"7.07532013\"}]}";
+    public static String json_test = "{\"value\":[{\"lt\":\"43.62025872\",\"lg\":\"7.07532013\"},{\"lt\":\"43.62025872\",\"lg\":\"7.07532013\"}]}";
 
     public static SQLDatabase database;
 
@@ -89,10 +93,17 @@ public class Main {
             path += String.valueOf(tab.getJSONObject(i).get("lt"));
             path += "," + String.valueOf(tab.getJSONObject(i).get("lg"));
             if(i!=len - 1){
-                path += "|";
+                    path += "%7C";
             }
         }
+        URIBuilder builder = new URIBuilder();
+        builder.setScheme("https")
+                .setHost("roads.googleapis.com")
+                .setPath("/v1/snapToRoads")
+                .addParameter("path",path)
+                .addParameter("key",KEY);
         String url = SNAP_ROAD_URL + path +"&key=" + KEY;
+        System.out.println(url);
         //System.out.println(url);
         HttpResponse<JsonNode> request = Unirest.get(url).asJson();
         JSONObject myObj = request.getBody().getObject();
@@ -234,17 +245,17 @@ public class Main {
                     database.addCheckpoint(i);
                 }
                 System.out.println("adding checkpoints\n");
-                database.displayCheckpointbyId(travel_id);
+                //database.displayCheckpointbyId(travel_id);
                 //construit le training file
                 database.writeRecords();
-                database.train();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
 
             System.out.println("FIlling BD... "+y);
         }
-
+        //train the model
+        database.train();
         System.out.println("FIlling BD... End");
     }
 
