@@ -1,9 +1,6 @@
 package database;
 
-import Objects.Checkpoint;
-import Objects.CheckpointRecord;
-import Objects.Travel;
-import Objects.TravelRecord;
+import Objects.*;
 import Utils.SvmManager;
 
 import java.io.IOException;
@@ -57,9 +54,9 @@ public class Test {
             int mean1 = database.getMeanCheckponts(1);
             int mean2 = database.getMeanTravel();
             int mean3 = database.getMeanTravelbyDay(1);
-            int min = database.minTravelbyDay(1);
+            StatRecord min = database.minTravelbyDay(1);
             System.out.println("average travel "+ median1 + " average checkpoint " + median2);
-            System.out.println("mean travel " + mean2 + " mean checkpoint " + mean1 + " mean travel by day " + mean3 + " mintravel " + min);
+            System.out.println("mean travel " + mean2 + " mean checkpoint " + mean1 + " mean travel by day " + mean3 + " mintravel " + min.getTime());
             System.out.println("number of checkpoints " + database.getNumberOfCheckpoints());
             System.out.println("write records:");
             database.writeRecords();

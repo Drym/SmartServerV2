@@ -18,6 +18,8 @@ import org.json.JSONObject;
 import spark.Request;
 import spark.Response;
 
+import javax.servlet.http.HttpServletResponse;
+
 import static spark.Spark.get;
 import static spark.Spark.post;
 import static spark.Spark.staticFileLocation;
@@ -26,6 +28,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -65,6 +69,7 @@ public class Main {
         post("/record", Main::saveRecord);
         post("/predict", Main::predict);
         post("/stats", Main::getStats);
+        get("/model", Main::getModel);
 
         fillBD();
     }
@@ -250,6 +255,11 @@ public class Main {
         //train the model
         database.train();
         System.out.println("FIlling BD... End");
+        try {
+            System.out.println("average travel " +String.valueOf(database.getAverageTravel()) + "average checkpoint1 " + String.valueOf(database.getAverageCheckpoints(1)));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     /*
@@ -305,6 +315,23 @@ public class Main {
         }
     }
 
+    public static HttpServletResponse getModel(Request request, Response response){
+        String res = "";
+        byte[] bytes = new byte[0];
+        try {
+            bytes = Files.readAllBytes(Paths.get(SvmManager.model_path));
+            HttpServletResponse raw = response.raw();
+
+            raw.getOutputStream().write(bytes);
+            raw.getOutputStream().flush();
+            raw.getOutputStream().close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return response.raw();
+    }
+
     /*
         returning stats for the application, average travel, moyenne par jour ...
         example:
@@ -345,6 +372,7 @@ public class Main {
         JSONObject stats = new JSONObject();
         JSONArray meanByDayArray = new JSONArray();
         JSONArray minByDayArray = new JSONArray();
+        JSONArray maxByDayArray = new JSONArray();
 
         for(int i = 1; i <= myMath.days.size(); i++) {
             JSONObject meanByDay = new JSONObject();
@@ -360,12 +388,27 @@ public class Main {
             JSONObject minByDay = new JSONObject();
             try {
                 minByDay.put("Day", myMath.days.get(i-1));
-                minByDay.put("Value", database.minTravelbyDay(i));
+                minByDay.put("Value", database.minTravelbyDay(i).getTime());
+                minByDay.put("Hour", database.minTravelbyDay(i).getHour());
             } catch(Exception e) {
                 minByDay.put("Day", myMath.days.get(i-1));
                 minByDay.put("Value", "error");
+                minByDay.put("Hour", "error");
             }
             minByDayArray.put(minByDay);
+
+            JSONObject maxByDay = new JSONObject();
+            try {
+                maxByDay.put("Day", myMath.days.get(i-1));
+                maxByDay.put("Value", database.maxTravelbyDay(i).getTime());
+                maxByDay.put("Hour", database.maxTravelbyDay(i).getHour());
+            } catch(Exception e) {
+                maxByDay.put("Day", myMath.days.get(i-1));
+                maxByDay.put("Value", "error");
+                maxByDay.put("Hour", "error");
+            }
+            maxByDayArray.put(maxByDay);
+
         }
 
         try {
@@ -375,6 +418,7 @@ public class Main {
         }
         stats.put("meanByDayArray", meanByDayArray);
         stats.put("minByDayArray", minByDayArray);
+        stats.put("maxByDayArray", maxByDayArray);
 
         System.out.println(stats);
 

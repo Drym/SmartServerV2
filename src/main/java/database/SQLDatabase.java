@@ -4,6 +4,7 @@ import Objects.Checkpoint;
 import Objects.CheckpointRecord;
 import Objects.Travel;
 import Objects.TravelRecord;
+import Objects.StatRecord;
 import Utils.MyMath;
 import Utils.SvmManager;
 import org.sqlite.SQLiteConfig;
@@ -313,12 +314,26 @@ public class SQLDatabase {
         return result + 1;
     }
 
-    public int minTravelbyDay(int day) throws SQLException {
-        int res = -1;
+    public StatRecord minTravelbyDay(int day) throws SQLException {
+        StatRecord res = new StatRecord();
         Statement stmt = c.createStatement();
         ResultSet rs = stmt.executeQuery( "SELECT MIN(TIME),START FROM TRAVEL WHERE DAY =" + day + ";");
         while ( rs.next() ) {
-            res = rs.getInt(1);
+            res.setTime(rs.getInt(1));
+            res.setHour(rs.getInt(2));
+        }
+        rs.close();
+        stmt.close();
+        return res;
+    }
+
+    public StatRecord maxTravelbyDay(int day) throws SQLException {
+        StatRecord res = new StatRecord();
+        Statement stmt = c.createStatement();
+        ResultSet rs = stmt.executeQuery( "SELECT MAX(TIME),START FROM TRAVEL WHERE DAY =" + day + ";");
+        while ( rs.next() ) {
+            res.setTime(rs.getInt(1));
+            res.setHour(rs.getInt(2));
         }
         rs.close();
         stmt.close();
