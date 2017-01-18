@@ -317,7 +317,7 @@ public class SQLDatabase {
     public StatRecord minTravelbyDay(int day) throws SQLException {
         StatRecord res = new StatRecord();
         Statement stmt = c.createStatement();
-        ResultSet rs = stmt.executeQuery( "SELECT MIN(TIME),START FROM TRAVEL WHERE DAY =" + day + ";");
+        ResultSet rs = stmt.executeQuery( "SELECT TIME,START FROM TRAVEL WHERE DAY =" + day + " AND TIME = (SELECT MIN(TIME) FROM TRAVEL WHERE DAY = " + day + ");");
         while ( rs.next() ) {
             res.setTime(rs.getInt(1));
             res.setHour(rs.getInt(2));
@@ -330,7 +330,7 @@ public class SQLDatabase {
     public StatRecord maxTravelbyDay(int day) throws SQLException {
         StatRecord res = new StatRecord();
         Statement stmt = c.createStatement();
-        ResultSet rs = stmt.executeQuery( "SELECT MAX(TIME),START FROM TRAVEL WHERE DAY =" + day + ";");
+        ResultSet rs = stmt.executeQuery( "SELECT TIME,START FROM TRAVEL WHERE DAY =" + day + " AND TIME = (SELECT MAX(TIME) FROM TRAVEL WHERE DAY = " + day + ");");
         while ( rs.next() ) {
             res.setTime(rs.getInt(1));
             res.setHour(rs.getInt(2));

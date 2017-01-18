@@ -25,25 +25,33 @@ public class Test {
         try {
             int id1;
             int id2;
+            int id3;
             Travel t1 = new Travel(1,date,512);
             Travel t2 = new Travel(1,dateformat.parse("17/07/2016/15/12/23"),650);
+            Travel t3 = new Travel(1,dateformat.parse("17/07/2016/17/12/23"),750);
             Checkpoint checkpoint1 = new Checkpoint(0,(float)15.7,(float)42.8,132);
             Checkpoint checkpoint2 = new Checkpoint(1,(float)15.7,(float)47.8,189);
             Checkpoint checkpoint3 = new Checkpoint(0,(float)15.7,(float)42.8,219);
-
+            Checkpoint checkpoint5 = new Checkpoint(1,(float)15.7,(float)47.8,189);
+            Checkpoint checkpoint6 = new Checkpoint(0,(float)15.7,(float)42.8,219);
 
             database.deleteAll();
             database.create_database();
             id1 = database.addTravel(t1);
             id2 = database.addTravel(t2);
+            id3 = database.addTravel(t3);
 
             if(id1>0 && id2>0){
                 checkpoint1.setTravel_id(id1);
                 checkpoint2.setTravel_id(id2);
                 checkpoint3.setTravel_id(id2);
+                checkpoint5.setTravel_id(id3);
+                checkpoint6.setTravel_id(id3);
                 database.addCheckpoint(checkpoint1);
                 database.addCheckpoint(checkpoint2);
                 database.addCheckpoint(checkpoint3);
+                database.addCheckpoint(checkpoint5);
+                database.addCheckpoint(checkpoint6);
             }
             System.out.println("displaying travels");
             database.displayTravel();
@@ -55,8 +63,10 @@ public class Test {
             int mean2 = database.getMeanTravel();
             int mean3 = database.getMeanTravelbyDay(1);
             StatRecord min = database.minTravelbyDay(1);
+            StatRecord max = database.maxTravelbyDay(1);
             System.out.println("average travel "+ median1 + " average checkpoint " + median2);
-            System.out.println("mean travel " + mean2 + " mean checkpoint " + mean1 + " mean travel by day " + mean3 + " mintravel " + min.getTime());
+            System.out.println("mean travel " + mean2 + " mean checkpoint " + mean1 + " mean travel by day " + mean3 + " mintravel " + min.getTime() + " " + min.getHour());
+            System.out.println("max " + max.getTime() + "," + max.getHour());
             System.out.println("number of checkpoints " + database.getNumberOfCheckpoints());
             System.out.println("write records:");
             database.writeRecords();
