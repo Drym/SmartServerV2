@@ -77,4 +77,15 @@ public class Checkpoint {
     public void setTime(int time) {
         this.time = time;
     }
+
+    @Override
+    public String toString() {
+        return "Checkpoint{" +
+                "travel_id=" + travel_id +
+                ", id=" + id +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", time=" + time +
+                '}';
+    }
 }

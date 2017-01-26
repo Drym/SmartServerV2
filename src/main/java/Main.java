@@ -180,7 +180,9 @@ public class Main {
             JSONObject checkpoint;
             for(int i=0;i<values.length();i++){
                 checkpoint = values.getJSONObject(i);
-                checkpoints.add(new Checkpoint(checkpoint.getInt("id"),(float)checkpoint.getDouble("lg"),(float)checkpoint.getDouble("lt"),checkpoint.getInt("time")));
+                Checkpoint check = new Checkpoint(checkpoint.getInt("id"),(float)checkpoint.getDouble("lg"),(float)checkpoint.getDouble("lt"),checkpoint.getInt("time"));
+                System.out.println("register " + check);
+                checkpoints.add(check);
             }
         } catch (ParseException e) {
             e.printStackTrace();
