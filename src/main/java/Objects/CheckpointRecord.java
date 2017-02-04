@@ -9,12 +9,19 @@ public class CheckpointRecord {
 
     private Checkpoint checkpoint;
     private int average;
-    private int label;
+    private float label;
 
     public CheckpointRecord(Checkpoint checkpoint, int average) {
         this.checkpoint = checkpoint;
         this.average = average;
-        this.label = MyMath.getLabel(this.checkpoint.getTime(),average);
+        this.label = MyMath.getCheckpointLabel(this.checkpoint.getTime(), average);
+        System.out.println("label de merde " + this.label);
+    }
+
+    public CheckpointRecord(Checkpoint checkpoint, float _label, int _avg) {
+        this.checkpoint = checkpoint;
+        this.average = _avg;
+        this.label = _label;
     }
 
     public Checkpoint getCheckpoint() {
@@ -34,7 +41,7 @@ public class CheckpointRecord {
         this.average = average;
     }
 
-    public int getLabel() {
+    public float getLabel() {
         return label;
     }
 

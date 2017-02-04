@@ -12,6 +12,8 @@ import java.util.Map;
  */
 public class TravelRecord {
 
+    public static int number_of_checkpoint = 19;
+
     private int start_hour;
     private int day_of_week;
     private ArrayList<CheckpointRecord> checkpoints;
@@ -32,36 +34,67 @@ public class TravelRecord {
 
     @Override
     public String toString() {
+        format();
         String sample = "";
-        sample += this.getLabel() + " 1:" + this.getDay_of_week();
-        sample += " 2:" + this.getStart_hour();
+        sample += this.getLabel() + " 1:" + (float)this.getDay_of_week()/6;
+        sample += " 2:" + (float)this.getStart_hour()/24;
         for(CheckpointRecord i : checkpoints){
             //System.out.println("value " + i + "average" + average);
-            sample += " " + (i.getCheckpoint().getId()+3) + ":";
+            sample +=  " " +(i.getCheckpoint().getId()+3) + ":";
             //compute the class of the checkpoint [-3,3]
             sample += i.getLabel();
+
         }
         return  sample;
     }
 
 
     public svm_node[] getNodes(){
-        int size = 2 + checkpoints.size();
+        format();
+        int size = checkpoints.size();
         svm_node[] res = new svm_node[size];
         for(int i=0;i<size;i++) {
             res[i] = new svm_node();
         }
-        res[0].index = 0;
-        res[0].value = day_of_week;
-        res[1].index = 1;
-        res[1].value = start_hour;
+        res[0] = new svm_node();
+        res[0].index = 1;
+        res[0].value = (float)day_of_week/6;
+        res[1] = new svm_node();
+        res[1].index = 2;
+        res[1].value = (float)start_hour/24;
         for(int i = 2;i<size;i++){
-            res[i].index = checkpoints.get(i-2).getCheckpoint().getId();
+            res[i] = new svm_node();
+            res[i].index = checkpoints.get(i-2).getCheckpoint().getId() + 3;
             res[i].value = checkpoints.get(i-2).getLabel();
+        }
+        for(int i = 0;i< size; i++){
+            System.out.println(res[i].index + ": " + res[i].value);
         }
         return res;
     }
 
+    public void format(){
+        int len = checkpoints.size();
+        if(len < number_of_checkpoint){
+            float avg = average_label();
+            int nb = number_of_checkpoint - checkpoints.size();
+            for(int i=len;i < number_of_checkpoint; i++){
+                checkpoints.add(new CheckpointRecord(new Checkpoint(i,-1,-1,-1),avg,-1));
+            }
+        }
+    }
+
+    public float average_label(){
+        float res;
+        float cmp = 0;
+        int nb = checkpoints.size();
+        for(int i=0; i<nb; i++){
+            cmp += checkpoints.get(i).getLabel();
+        }
+        res = cmp / nb;
+        System.out.println("average compute " + res);
+        return res;
+    }
     public int getStart_hour() {
         return start_hour;
     }

@@ -55,7 +55,7 @@ public class SvmManager {
         }
         svm_parameter param = new svm_parameter();
         svm_train t = new svm_train();
-        String argv[] = {training_path,model_path};
+        String argv[] = {"-s","0","-c","5","-t","2","-g","0.5","-e","0.1",training_path,model_path};
         try {
             t.run(argv);
         } catch (IOException e) {

@@ -10,6 +10,14 @@ import java.util.HashMap;
  */
 public class MyMath {
 
+
+    //range of label is [-1:1] size is 2
+    public static int interval = 2;
+    public static int beguining_interval = -1;
+    //our initial label vary between -3 and 3
+    public static int borne_min = -3;
+    public static int borne_max = 3;
+
     public static boolean isBetween(float x, float lower, float upper) {
         return lower <= x && x < upper;
     }
@@ -68,6 +76,34 @@ public class MyMath {
         }
         return (int)time;
     }
+
+    public static float getCheckpointLabel(int time,int mediane){
+        float res = (float)time/mediane;
+        int label;
+        if(isBetween(res,(float)0.9,(float)1.1)){
+            label = 0;
+        }
+        else if(isBetween(res,(float)1.1,(float)1.3)){
+            label = 1;
+        }
+        else if(isBetween(res,(float)1.3,(float)1.5)){
+            label = 2;
+        }
+        else if(res >= 1.5){
+            label = 3;
+        }
+        else if(isBetween(res,(float)0.7,(float)0.9)){
+            label = -1;
+        }
+        else if(isBetween(res,(float)0.5,(float)0.7)){
+            label = -2;
+        }
+        else label = -3;
+
+        float pourcentage = (label-borne_min)/(float)(borne_max-borne_min);
+        return (float)((interval * pourcentage)+beguining_interval);
+    }
+
 
     public static int getLabel(int time,int mediane){
         float res = (float)time/mediane;
