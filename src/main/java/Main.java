@@ -55,6 +55,7 @@ public class Main {
             e.printStackTrace();
         }
 
+        /*
         JSONObject test = new JSONObject(json_test);
         System.out.println("Test JSON : "+json_test);
         try {
@@ -62,6 +63,7 @@ public class Main {
         } catch (UnirestException e) {
             e.printStackTrace();
         }
+        */
 
         staticFileLocation("/public");
         setPort(7777);
