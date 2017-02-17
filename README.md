@@ -3,6 +3,7 @@
 ## Environnement de développement
 
 - IntelliJ IDEA
+- Maven
 - Git
 - Sparkjava (web serveur, facile d'utilisation, très proche de flask)
 - libsvm (Pour l'algorithme SVM)
